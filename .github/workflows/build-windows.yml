@@ -15,11 +15,19 @@ jobs:
         run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DFXTEND_COPY_PLUGIN_AFTER_BUILD=OFF
 
       - name: Build VST3
-        run: cmake --build build --config Release --target FXtend_VST3
+        shell: pwsh
+        run: |
+          cmake --build build --config Release --target FXtend_VST3 2>&1 | Tee-Object -FilePath build.log
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+
+      - name: Show errors
+        if: failure()
+        shell: pwsh
+        run: |
+          Select-String -Path build.log -Pattern 'error [A-Z]+\d+' | ForEach-Object { $_.Line }
 
       - name: Upload VST3
         uses: actions/upload-artifact@v4
         with:
           name: FXtend-VST3-Windows
           path: build/FXtend_artefacts/Release/VST3/
-        
