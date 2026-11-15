@@ -1,7 +1,3 @@
-#if defined(_MSC_VER)
-#include <BaseTsd.h>
-typedef SSIZE_T ssize_t;
-#endif
 #include "PresetManager.h"
 #include "FactoryPresets.h"
 #include "../Storage.h"
