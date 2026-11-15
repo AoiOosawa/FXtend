@@ -22,3 +22,4 @@ jobs:
         with:
           name: FXtend-VST3-Windows
           path: build/FXtend_artefacts/Release/VST3/
+        
