@@ -63,15 +63,62 @@ DAW を止めたままピアノロールでノートを動かすと、そのた�
 
 読み込むサンプルは、利用条件を確かめたうえでお使いください。
 
+## Windows版の動作状況
+
+Windows版は、公式版をもとにWindows向けにビルドした非公式のVST3版です。
+
+### 動作確認環境・検証結果
+
+- OS：Windows
+- DAW：Fender Studio Pro 8.0.3
+- プラグイン形式：VST3
+- pluginval：Strictness Level 10 を含む全テストに合格
+- Steinberg VST3 Validator：合格
+
+### 動作確認済みの機能
+
+以下の機能について、Windows環境で動作を確認しています。
+
+- **音源・再生機能**
+  - 基本的な発音とタイミング制御
+  - 6種類のFXタイプ
+  - TAIL・STOPPED設定
+- **プリセット・プロジェクト**
+  - プリセットの読み込み・保存
+  - プロジェクトの保存・復元
+  - プリセットパッケージ（`.fxtendpack`）の書き出し・読み込み
+- **サンプル編集**
+  - サンプルの読み込み
+  - サンプルの編集・Stretch
+  - WAV書き出し
+- **各種機能**
+  - Mixer・Advanced・Master各ページ
+  - オートメーション
+  - 同じ位置で短時間に連続してノートを再トリガーする動作
+
+### 未対応・未確認の機能
+
+以下は、Windows版では未対応、または動作を確認できていない項目です。
+
+- VST3以外のプラグイン形式（未対応）
+- スタンドアロンアプリ（未対応）
+- インストーラによる自動インストール（未対応）
+- コード署名（未対応）
+
+### 使用上の注意
+
+- **Stretchについて**
+
+  素材を大きく伸ばすと、音が濁る場合があります。特に長いノイズ素材などでは、伸縮率によって音質が変化するため注意してください。
+
 ## まだできないこと・知っておいてほしいこと
 
-- **動作を確認した DAW**: Cubase、Fender Studio、Logic Pro。`auval` と pluginval（strictness 10）も、VST3・AU とも通っています。
-- **Windows** にはまだ対応していません。作れる見込みはあり、足りないものは下の「[Windows 版について](#windows-版について)」にまとめています。
-- **ノートの高さ**で音程やプリセットを変えることはできません。
-- **DAW へ WAV を直接ドラッグ**することはできません。`Export WAV` でファイルに書き出してください。
-- **再生中にテンポが変わったときの Stretch**: テンポが一定のあいだは、音程を保ったまま伸縮した音を鳴らします。途中でテンポが変わると、終わる位置を合わせることを優先して再生速度を変えるので、そのあいだは音程もテンポの変化ぶんだけずれます。
-- **Overlap と Strict を一緒に使うとき**: リバーブとディレイは全体で 1 つなので、最後に鳴っている音が終わる位置でまとめて無音になります。
-- **Custom 4-point カーブ**は、エンジンとプリセットは対応していますが、編集する画面がまだありません。
+- **動作を確認したDAW（macOS）**：Cubase、Fender Studio、Logic Pro。`auval` と pluginval（Strictness Level 10）も、VST3・AUともに通っています。
+- **ノートの高さによる音程・プリセットの変更**：ノートの高さを変えても、音程やプリセットを変更することはできません。
+- **DAWへのWAVの直接ドラッグ**：書き出したWAVファイルをDAWへ直接ドラッグする機能はありません。`Export WAV` からファイルを書き出してください。
+- **再生中にテンポが変わったときのStretch**：テンポが一定のあいだは、音程を保ったまま伸縮した音を鳴らします。再生中にテンポが変わると、終わる位置を合わせることを優先して再生速度を変えるため、そのあいだは音程もテンポの変化に応じてずれます。
+- **OverlapとStrictを併用したときのリバーブ・ディレイ**：リバーブとディレイは全体で1つだけなので、最後に鳴っている音が終わる位置で、まとめて無音になります。
+- **Custom 4-pointカーブ**：エンジンとプリセットは対応していますが、カーブを編集する画面はまだありません。
 
 ---
 
@@ -79,7 +126,11 @@ DAW を止めたままピアノロールでノートを動かすと、そのた�
 
 ## ビルド
 
-Xcode と CMake 3.24 以降が必要です。JUCE 9、Rubber Band、Catch2 は、最初の `cmake` のときに自動でダウンロードされます。
+### macOS
+
+Xcode と CMake 3.24 以降が必要です。
+
+JUCE 9、Rubber Band、Catch2 は、最初の `cmake` の実行時に自動でダウンロードされます。
 
 ```sh
 cmake -B build -G Xcode
@@ -87,42 +138,86 @@ cmake --build build --config Release
 ctest --test-dir build -C Release --output-on-failure
 ```
 
-ビルドが終わると、プラグインは `~/Library/Audio/Plug-Ins` の `VST3` と `Components` にコピーされます。コピーしたくないときは `-DFXTEND_COPY_PLUGIN_AFTER_BUILD=OFF` を付けてください。スタンドアロンアプリは `build/FXtend_artefacts/Release/Standalone/` にできます。
+ビルドが完了すると、プラグインは次の場所にコピーされます。
+
+- VST3：`~/Library/Audio/Plug-Ins/VST3`
+- Audio Unit：`~/Library/Audio/Plug-Ins/Components`
+
+自動コピーを無効にする場合は、CMakeの実行時に次のオプションを指定してください。
+
+```sh
+-DFXTEND_COPY_PLUGIN_AFTER_BUILD=OFF
+```
+
+スタンドアロンアプリは、次の場所に生成されます。
+
+`build/FXtend_artefacts/Release/Standalone/`
+
+### Windows
+
+Windows機が手元になくても、ビルドと自動テストまでならGitHub ActionsのWindowsランナーで回せます。
+
+#### 実行方法
+
+1. GitHubでFXtendのリポジトリを開きます。
+2. リポジトリ上部の「Actions」タブを開きます。
+3. 左側の一覧からWindows向けのビルドワークフローを選択します。
+4. 実行履歴から確認したい実行を選択します。
+5. 実行結果の画面で、各Jobを開くとビルドやテストのログを確認できます。
+
+ワークフローが成功すれば、設定されたビルドと自動テストが正常に完了したことを確認できます。
+
+なお、GitHub Actionsでのビルド・テストは、実際のWindows環境でDAWを使った動作確認の代わりにはなりません。
 
 ## インストーラを作る
+
+macOS用のインストーラは、次のスクリプトで作成できます。
 
 ```sh
 scripts/package-macos.sh
 ```
 
-Apple Silicon と Intel の両方で動く形でビルドし、VST3、AU、スタンドアロンアプリを入れるインストーラを `build-dist/package/` に作ります。インストール先は `/Library/Audio/Plug-Ins/VST3`、`/Library/Audio/Plug-Ins/Components`、`/Applications` です。
+Apple SiliconとIntelの両方で動作する形でビルドし、VST3、Audio Unit、スタンドアロンアプリを含むインストーラを `build-dist/package/` に作成します。
 
-ほかの Mac で開けるようにするには、署名と Apple の公証が必要です。次の環境変数で指定します。指定しなければ、署名なしのインストーラができます。
+インストール先は次のとおりです。
+
+- `/Library/Audio/Plug-Ins/VST3`
+- `/Library/Audio/Plug-Ins/Components`
+- `/Applications`
+
+ほかのMacでも開けるようにするには、コード署名とAppleの公証が必要です。次の環境変数で指定できます。指定しない場合は、署名なしのインストーラが作成されます。
 
 | 環境変数 | 内容 |
 |---|---|
-| `SIGN_APP` | `Developer ID Application: 名前 (チームID)`。プラグインとアプリの署名に使います |
-| `SIGN_PKG` | `Developer ID Installer: 名前 (チームID)`。インストーラの署名に使います |
-| `NOTARY_PROFILE` | `xcrun notarytool store-credentials` で作ったプロファイルの名前。指定すると Apple の公証に出し、通ったらチケットを付けます |
+| `SIGN_APP` | `Developer ID Application: 名前 (チームID)`。プラグインとアプリの署名に使用します。 |
+| `SIGN_PKG` | `Developer ID Installer: 名前 (チームID)`。インストーラの署名に使用します。 |
+| `NOTARY_PROFILE` | `xcrun notarytool store-credentials` で作成したプロファイル名。指定するとAppleの公証を申請し、通過後にチケットを付けます。 |
 
-## Windows 版について
+## Windows版について
 
-まだありません。コードはほとんどそのまま Windows でも通る作りですが、実際にビルドして試したことはありません。
+Windows版は、公式版のソースコードをもとにビルドした非公式版です。
 
-そのまま使えるはずのもの:
+現在、Windows版ではVST3形式に対応しています。
 
-- JUCE と Rubber Band は Windows に対応しています。VST3 とスタンドアロンアプリは、同じ `CMakeLists.txt` から作れます。AU は Mac だけの形式なので、Windows では自動的に外れます。
-- `src` の中で Mac にしかないコードは、データの保存場所を決める `src/Storage.h` の 1 か所だけで、すでに `#if JUCE_MAC` で分けてあります。
+- JUCEとRubber BandはWindowsに対応しています。
+- VST3は、macOS版と同じ `CMakeLists.txt` からビルドできます。
+- Audio UnitはmacOS専用の形式のため、Windowsではビルド対象になりません。
+- Windows版のデータ保存先は、`src/Storage.h` でOSごとに切り替えています。
 
-手を入れる必要があるもの:
+### Windows版の制限事項
 
-- **テスト**: `tests/PluginTests.cpp` が CoreFoundation を直接読み込んでいます。ここを分けないと、Windows ではテストがビルドできません。
-- **ビルド**: MSVC で通したことがないので、エラーや警告が出たら直す必要があります。Rubber Band は Mac では Accelerate を使っていますが、Windows では内蔵の FFT に切り替わります。Stretch の音と速さは確かめ直してください。
-- **インストーラ**: `scripts/package-macos.sh` に当たるものがありません。Inno Setup などで作ることになります。
-- **署名**: コード署名の証明書がないと、ダウンロードしたときに SmartScreen の警告が出ます。
-- **DAW での確認**: Windows の実機か仮想マシンで、[`docs/TEST_PLAN.md`](docs/TEST_PLAN.md) の手順をやり直す必要があります。
+- VST3以外のプラグイン形式には対応していません。
+- スタンドアロンアプリには対応していません。
+- Windows用の自動インストーラはありません。
+- コード署名は行っていません。
 
-Windows 機が手元になくても、ビルドと自動テストまでなら GitHub Actions の Windows ランナーで回せます。
+### 動作確認
+
+Windows版はFender Studio Pro 8.0.3で動作を確認しています。
+
+また、pluginvalのStrictness Level 10を含む全テストと、Steinberg VST3 Validatorの検証に合格しています。
+
+Stretchは、素材を大きく伸ばすと音が濁る場合があります。特に長いノイズ素材などでは、伸縮率に注意してください。
 
 ## ソースコードの構成
 
@@ -168,3 +263,20 @@ FXtend は、GNU Affero General Public License v3.0（[`LICENSE`](LICENSE)）で
 どちらもビルドのときにダウンロードされるもので、このリポジトリには入っていません。インストーラに入れている表記は [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) にあります。
 
 「FXtend」という名前について、正式な商標調査はしていません。ウェブ検索で、同じ名前の音楽ソフトが見つからないことを確かめただけです。
+
+## このリポジトリで行ったこと
+
+このリポジトリでは、公式版のソースコードをもとに、Windows向けの非公式ビルドを作成・公開しています。
+
+主に次の作業を行いました。
+
+- Windows環境でVST3プラグインをビルドできるように対応
+- Windowsでのデータ保存先をOSに合わせて設定
+- Fender Studio Pro 8.0.3での動作確認
+- pluginval（Strictness Level 10を含む全テスト）による検証
+- Steinberg VST3 Validatorによる検証
+- サンプルの読み込み・編集・書き出し、プリセット、オートメーションなどの動作確認
+- Windows版のZIPパッケージ作成とGitHub Releasesでの公開
+- Windows版の導入方法や制限事項を含むREADMEの整備
+
+このリポジトリは公式版の開発元とは別に管理しているもので、Windows版のビルド・検証・配布を目的としています。
