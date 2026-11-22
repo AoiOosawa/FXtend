@@ -205,7 +205,7 @@ private:
     void publishSources();
     std::array<fxtend::SampleRef, fxtend::numSampleLayers> getSampleRefs() const;
 
-    juce::AudioProcessorValueTreeTreeState parameters;
+    juce::AudioProcessorValueTreeState parameters;
     ParameterReader reader;
     fxtend::PresetManager presetManager;
     fxtend::SampleManager sampleManager;
