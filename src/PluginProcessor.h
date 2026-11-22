@@ -1,3 +1,4 @@
+
 #pragma once
 
 #include "Parameters.h"
@@ -54,7 +55,7 @@ public:
     int getNumPrograms() override                           { return 1; }
     int getCurrentProgram() override                        { return 0; }
     void setCurrentProgram (int) override                   {}
-    const juce::String getProgramName (int) override        { return {}; }
+    const juce::String getProgramName (int) override        { return "Default"; }
     void changeProgramName (int, const juce::String&) override {}
 
     void getStateInformation (juce::MemoryBlock& destData) override;
@@ -204,7 +205,7 @@ private:
     void publishSources();
     std::array<fxtend::SampleRef, fxtend::numSampleLayers> getSampleRefs() const;
 
-    juce::AudioProcessorValueTreeState parameters;
+    juce::AudioProcessorValueTreeTreeState parameters;
     ParameterReader reader;
     fxtend::PresetManager presetManager;
     fxtend::SampleManager sampleManager;
@@ -233,9 +234,9 @@ private:
 
     fxtend::Patch audioPatch;
 
-    // Audition: a preset played in place of the current sound without being
-    // loaded. The message thread hands the patch over under auditionLock; the
-    // audio thread takes it only if it gets the lock without waiting.
+    // Audition: a preset played in place of the current sound without loading it.
+    // The message thread hands the patch over under auditionLock; the audio thread
+    // takes it only if it gets the lock without waiting.
     void endAudition() noexcept;
     fxtend::Patch pendingAudition;         // guarded by auditionLock
     juce::SpinLock auditionLock;
@@ -247,8 +248,7 @@ private:
     bool auditionActive = false;            // audio thread
     fxtend::EngineSettings audioSettings;
 
-    // Hosts may save and restore state from a thread of their own while the
-    // editor reads the name, hence the lock.
+    // Hosts may save and restore state from a thread of their own while the editor reads the name.
     juce::String currentPresetName;
     mutable juce::CriticalSection nameLock;
     fxtend::Patch undoPatch;
