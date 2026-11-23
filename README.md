@@ -42,7 +42,7 @@
 | ファイル | 中身 |
 | --- | --- |
 | [`AI_CONTEXT.md`](docs/AI_CONTEXT.md) | FXtend の使い方、インストール、ビルド、仕組み、Windows 版の変更点、確認の状況を、すべてまとめた資料 |
-| [`AGENTS.md`](dogs/AGENTS.md) | AI が、資料にもとづいて、正確に答えるためのルール |
+| [`AGENTS.md`](docs/AGENTS.md) | AI が、資料にもとづいて、正確に答えるためのルール |
 
 渡し方:
 
